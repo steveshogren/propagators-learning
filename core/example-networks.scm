@@ -18,7 +18,6 @@
 ;;; along with Propagator Network Prototype.  If not, see
 ;;; <http://www.gnu.org/licenses/>.
 ;;; ----------------------------------------------------------------------
-
 (declare (usual-integrations make-cell cell?))
 
 ;;; Example usages of propagator networks
@@ -61,6 +60,26 @@
 (define-propagator (c:celsius-kelvin c k)
   (c:+ c 273.15 k))
 
+(define LookupMessage (make-record-type "LookupMessage" '(id name)))
+(define User (make-record-type "User" '(id name)))
+(define Agreement (make-record-type "Agreement" '(id name users)))
+(define AgreementMessage (make-record-type "AgreementMessage" '(id name users)))
+
+(define user ((record-constructor User '(id name)) 1 "Steve"))
+(define agreement ((record-constructor Agreement '(id name users)) 2 "Bank 1 OTC" '(user)))
+
+(define-propagator (c:fahrenheit-celsius f c)
+  (c:== (ce:+ (ce:* c 9/5) 32) f))
+
+(define (runner)
+  (initialize-scheduler)
+  (define-cell f)
+  (define-cell c)
+  (c:fahrenheit-celsius f c)
+  (add-content f 52)
+  (run)
+  (content c))
+
 #|
  (initialize-scheduler)
  (define-cell f)
@@ -68,7 +87,7 @@
 
  (c:fahrenheit-celsius f c)
 
- (add-content c 25)
+ (add-content c 22)
  (run)
  (content f)
  ;Value: 77
