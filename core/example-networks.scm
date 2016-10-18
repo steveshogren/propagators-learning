@@ -60,16 +60,31 @@
 (define-propagator (c:celsius-kelvin c k)
   (c:+ c 273.15 k))
 
-(define LookupMessage (make-record-type "LookupMessage" '(id name)))
-(define User (make-record-type "User" '(id name)))
-(define Agreement (make-record-type "Agreement" '(id name users)))
-(define AgreementMessage (make-record-type "AgreementMessage" '(id name users)))
+(define LookupMessageR (make-record-type "LookupMessageR" '(id name)))
+(define UserR (make-record-type "UserR" '(id name)))
+(define AgreementR (make-record-type "AgreementR" '(id name users)))
+(define AgreementMessageR (make-record-type "AgreementMessageR" '(id name users)))
 
-(define user ((record-constructor User '(id name)) 1 "Steve"))
-(define agreement ((record-constructor Agreement '(id name users)) 2 "Bank 1 OTC" '(user)))
+(define user ((record-constructor UserR '(id name)) 1 "Steve"))
+(define agreement ((record-constructor AgreementR '(id name users)) 2 "Bank 1 OTC" '(user)))
 
-(define-propagator (c:fahrenheit-celsius f c)
-  (c:== (ce:+ (ce:* c 9/5) 32) f))
+(define (u-to-lm u)
+  ((record-constructor LookupMessageR '(id name))
+   ((record-accessor UserR 'id) u)
+   ((record-accessor UserR 'name) u)))
+  
+
+(define (a-to-m a)
+  (let ((m ((record-constructor AgreementMessageR '(id name users)) 0 "" '()))
+        (m ((record-modifier AgreementMessageR 'id) m ((record-accessor AgreementR 'id) a)))
+        (m ((record-modifier AgreementMessageR 'name) m ((record-accessor AgreementR 'name) a)))
+        (m ((record-modifier AgreementMessageR 'name) m ((record-accessor AgreementR 'name) a)))
+         )
+    )
+  )
+
+(define-propagator (c:agreement-message a am)
+  (c:== (ce:+ (ce:* c 9/5) 32) am))
 
 (define (runner)
   (initialize-scheduler)
