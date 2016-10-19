@@ -72,16 +72,21 @@
   ((record-constructor LookupMessageR '(id name))
    ((record-accessor UserR 'id) u)
    ((record-accessor UserR 'name) u)))
-  
+
+(define (set-am-id am id) ((record-modifier AgreementMessageR 'id) am id))
+(define (set-am-name am v) ((record-modifier AgreementMessageR 'name) am v))
+(define (set-am-users am v) ((record-modifier AgreementMessageR 'users) am v))
+
+(define (get-a-id a) ((record-accessor AgreementR 'id) a))
+(define (get-a-name a) ((record-modifier AgreementR 'name) a))
+(define (get-a-users a) ((record-modifier AgreementR 'users) a))
 
 (define (a-to-m a)
-  (let ((m ((record-constructor AgreementMessageR '(id name users)) 0 "" '()))
-        (m ((record-modifier AgreementMessageR 'id) m ((record-accessor AgreementR 'id) a)))
-        (m ((record-modifier AgreementMessageR 'name) m ((record-accessor AgreementR 'name) a)))
-        (m ((record-modifier AgreementMessageR 'name) m ((record-accessor AgreementR 'name) a)))
-         )
-    )
-  )
+  (let* ((m ((record-constructor AgreementMessageR '(id name users)) 0 "" '()))
+         (m (set-am-id m (get-a-id a)))
+         (m (set-am-name m (get-a-name a)))
+         (m (set-am-users m (map u-to-lm (get-a-users a)))))
+    m))
 
 (define-propagator (c:agreement-message a am)
   (c:== (ce:+ (ce:* c 9/5) 32) am))
